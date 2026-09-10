@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PSK Schedule</title>
+  <!-- React 및 Tailwind CSS CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    :root {
+      --bg-paper: #EBF1EC;
+      --card-bg: #ffffff;
+      --main-green: #2D5A38;
+      --sub-green: #3B6E47;
+      --border-color: #D2E0D4;
+    }
+
+    body, html {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-text-size-adjust: 100%;
+      word-break: keep-all;
+      background-color: var(--bg-paper);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* 자연/풀/나무 선 드로잉 배경 (Base64 인코딩) */
+    .bg-nature-lines {
+      background-color: #EBF1EC;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PGcgc3Ryb2tlPSIjMkQ1QTM4IiBzdHJva2Utd2lkdGg9IjEuMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIwLjE4Ij48cGF0aCBkPSJNMjAgMTUwIEMgNDAgOTAsIDYwIDEyMCwgODAgMTUwIi8+PHBhdGggZD0iTTM1IDE0MCBDIDUwIDExMCwgNzAgMTQwLCA5MCAxMzAiLz48cGF0aCBkPSJNMTQwIDQwIEMgMTgwIDEwLCAxNjAgMCwgMTUwIDUwIEMgMTcwIDMwLCAxODAgNjAs IDE0MCA4MCIvPjxwYXRoIGQ9Ik0xNTAgNTAgTCAxNDAgOTAiLz48Y2lyY2xlIGN4PSIxNDAiIGN5PSIyNSIgcj0iMyIvPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjM1IiByPSIyLjUiLz48cGF0aCBkPSJNMTAgMzAgUSAzMCAwLCA1MCAyNSBUIDkwIDIwIi8+PHBhdGggZD0iTTExMCAxNjAgUSAxMzAgMTIwLCAxNjAgMTcwIi8+PHBhdGggZD0iTTEyNSAxNDAgUSAxNDAgMTMwLCAxMzUgMTQ1Ii8+PC9nPjwvc3ZnPg==');
+      background-repeat: repeat;
+      background-size: 160px 160px;
+    }
+
+    /* 스케줄 테이블 및 Sticky 헤더 설정 */
+    .table-container {
+      max-height: 58vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+    }
+
+    table.schedule-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      table-layout: fixed;
+    }
+
+    table.schedule-tbl th {
+      position: sticky;
+      top: 0;
+      background-color: var(--main-green);
+      color: #ffffff;
+      padding: 10px 2px;
+      z-index: 10;
+      font-size: 11px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.schedule-tbl td {
+      padding: 9px 2px;
+      border-bottom: 1px solid #F0F5F1;
+      font-size: 10.5px;
+      vertical-align: middle;
+      line-height: 1.2;
+    }
+
+    table.schedule-tbl tr:hover {
+      background-color: rgba(244, 248, 245, 0.8);
+    }
+  </style>
+</head>
+<body class="bg-nature-lines text-[#223328] min-h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const SCHEDULES = [
+      { id: 'jul-23-2000', playTitle: '청새치', date: '2026-07-23', day: '목', time: '20:00', visitor: '박슬기', miller: '홍나현', gregorio: '박슬기', event: '첫공', ep: '에필1' },
+      { id: 'jul-25-1500', playTitle: '청새치', date: '2026-07-25', day: '토', time: '15:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: null, ep: '에필1' },
+      { id: 'jul-25-1900', playTitle: '청새치', date: '2026-07-25', day: '토', time: '19:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: null, ep: '에필1' },
+      { id: 'jul-28-2000', playTitle: '청새치', date: '2026-07-28', day: '화', time: '20:00', visitor: '박슬기', miller: '홍나현', gregorio: '박슬기', event: '커튼콜', ep: '에필2' },
+      { id: 'jul-29-2000', playTitle: '청새치', date: '2026-07-29', day: '수', time: '20:00', visitor: '박슬기', miller: '김서연', gregorio: '박슬기', event: '커튼콜', ep: '에필2' },
+      { id: 'aug-01-1900', playTitle: '청새치', date: '2026-08-01', day: '토', time: '19:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '커튼콜', ep: '에필2' },
+      { id: 'aug-04-2000', playTitle: '청새치', date: '2026-08-04', day: '화', time: '20:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '도장더블', ep: '에필1' },
+      { id: 'aug-05-2000', playTitle: '청새치', date: '2026-08-05', day: '수', time: '20:00', visitor: '박슬기', miller: '김서연', gregorio: '박슬기', event: '도장더블', ep: '에필1' },
+      { id: 'aug-08-1900', playTitle: '청새치', date: '2026-08-08', day: '토', time: '19:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '도장더블', ep: '에필1' },
+      { id: 'aug-11-2000', playTitle: '청새치', date: '2026-08-11', day: '화', time: '20:00', visitor: '박슬기', miller: '홍나현', gregorio: '박슬기', event: '스콜', song: '네가 뭔데' },
+      { id: 'aug-12-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-08-12', day: '수', time: '20:00', visitor: '박슬기', man: '한재원', woman: '이상아', p1: '김솔', p2: '김소진', p3: '박영훈', p4: '신은규', pianist: '임지은', event: '첫공' },
+      { id: 'aug-13-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-08-13', day: '목', time: '20:00', visitor: '박슬기', man: '김태형', woman: '서채이', p1: '양정현', p2: '정우림', p3: '강현동', p4: '김준', pianist: '전현우', event: '커튼콜' },
+      { id: 'aug-15-1500', playTitle: '청새치', date: '2026-08-15', day: '토', time: '15:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '스콜', song: '파도가 부른 사람' },
+      { id: 'aug-16-1400', playTitle: '청새치', date: '2026-08-16', day: '일', time: '14:00', visitor: '박슬기', miller: '김서연', gregorio: '박슬기', event: '스콜', song: '노트 속 이야기' },
+      { id: 'aug-17-1400', playTitle: '미드나잇 액터뮤지션', date: '2026-08-17', day: '월', time: '14:00', visitor: '박슬기', man: '김태형', woman: '박혜민', p1: '양정현', p2: '정우림', p3: '강현동', p4: '김준', pianist: '조재철', event: '커튼콜' },
+      { id: 'aug-17-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-08-17', day: '월', time: '18:00', visitor: '박슬기', man: '한재원', woman: '박혜민', p1: '양정현', p2: '정우림', p3: '강현동', p4: '김준', pianist: '조재철', event: '커튼콜' },
+      { id: 'aug-19-2000', playTitle: '청새치', date: '2026-08-19', day: '수', time: '20:00', visitor: '박슬기', miller: '김서연', gregorio: '박슬기', event: '사탕증정', ep: '에필2' },
+      { id: 'aug-20-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-08-20', day: '목', time: '20:00', visitor: '박슬기', man: '김태형', woman: '이상아', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '임지은', event: '쿠폰팩 증정' },
+      { id: 'aug-22-1500', playTitle: '미드나잇 액터뮤지션', date: '2026-08-22', day: '토', time: '15:00', visitor: '박슬기', man: '조현우', woman: '이상아', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '전현우', event: '쿠폰팩 증정' },
+      { id: 'aug-22-1900', playTitle: '미드나잇 액터뮤지션', date: '2026-08-22', day: '토', time: '19:00', visitor: '박슬기', man: '한재원', woman: '이상아', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '전현우', event: '쿠폰팩 증정' },
+      { id: 'aug-23-1400', playTitle: '청새치', date: '2026-08-23', day: '일', time: '14:00', visitor: '박슬기', miller: '김서연', gregorio: '박슬기', event: '사탕증정', ep: '에필2' },
+      { id: 'aug-23-1800', playTitle: '청새치', date: '2026-08-23', day: '일', time: '18:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '사탕증정', ep: '에필2' },
+      { id: 'aug-26-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-08-26', day: '수', time: '20:00', visitor: '박슬기', man: '한재원', woman: '서채이', p1: '양정현', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '임지은', event: '스콜', song: '그날이 찾아왔어' },
+      { id: 'aug-27-2000', playTitle: '청새치', date: '2026-08-27', day: '목', time: '20:00', visitor: '박슬기', miller: '홍나현', gregorio: '박슬기', event: '에필 촬영', ep: '에필1' },
+      { id: 'aug-29-1500', playTitle: '청새치', date: '2026-08-29', day: '토', time: '15:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '에필 촬영', ep: '에필1' },
+      { id: 'aug-29-1900', playTitle: '청새치', date: '2026-08-29', day: '토', time: '19:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '에필 촬영', ep: '에필1' },
+      { id: 'aug-30-1400', playTitle: '미드나잇 액터뮤지션', date: '2026-08-30', day: '일', time: '14:00', visitor: '박슬기', man: '한재원', woman: '박혜민', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '전현우', event: '스콜', song: '누구나 악마죠 때로는' },
+      { id: 'aug-30-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-08-30', day: '일', time: '18:00', visitor: '박슬기', man: '김태형', woman: '박혜민', p1: '김솔', p2: '김소진', p3: '박영훈', p4: '김준', pianist: '전현우', event: '스콜', song: '디어 각하' },
+      { id: 'sep-01-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-09-01', day: '화', time: '20:00', visitor: '박슬기', man: '조현우', woman: '이상아', p1: '양정현', p2: '김소진', p3: '박영훈', p4: '신은규', pianist: '전현우', event: '프리쇼' },
+      { id: 'sep-02-1600', playTitle: '청새치', date: '2026-09-02', day: '수', time: '16:00', visitor: '박슬기', miller: '홍나현', gregorio: '박슬기', event: '폴라', ep: '에필2' },
+      { id: 'sep-02-2000', playTitle: '청새치', date: '2026-09-02', day: '수', time: '20:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '폴라', ep: '에필2' },
+      { id: 'sep-05-1500', playTitle: '미드나잇 액터뮤지션', date: '2026-09-05', day: '토', time: '15:00', visitor: '박슬기', man: '김태형', woman: '서채이', p1: '김솔', p2: '김소진', p3: '박영훈', p4: '신은규', pianist: '전현우', event: '프리쇼' },
+      { id: 'sep-05-1900', playTitle: '미드나잇 액터뮤지션', date: '2026-09-05', day: '토', time: '19:00', visitor: '박슬기', man: '한재원', woman: '이상아', p1: '김솔', p2: '김소진', p3: '박영훈', p4: '신은규', pianist: '전현우', event: '프리쇼' },
+      { id: 'sep-06-1400', playTitle: '청새치', date: '2026-09-06', day: '일', time: '14:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '폴라', ep: '에필2' },
+      { id: 'sep-09-1600', playTitle: '청새치', date: '2026-09-09', day: '수', time: '16:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '스콜', song: '쿠바의 바다로' },
+      { id: 'sep-11-1930', playTitle: '미드나잇 액터뮤지션', date: '2026-09-11', day: '금', time: '19:30', visitor: '박슬기', man: '조현우', woman: '박혜민', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '임지은', event: '커튼콜' },
+      { id: 'sep-12-1500', playTitle: '청새치', date: '2026-09-12', day: '토', time: '15:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '스콜', song: '도착' },
+      { id: 'sep-12-1900', playTitle: '청새치', date: '2026-09-12', day: '토', time: '19:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '스콜', song: '재회' },
+      { id: 'sep-13-1400', playTitle: '미드나잇 액터뮤지션', date: '2026-09-13', day: '일', time: '14:00', visitor: '박슬기', man: '조현우', woman: '서채이', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '임지은', event: '커튼콜' },
+      { id: 'sep-13-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-09-13', day: '일', time: '18:00', visitor: '박슬기', man: '김태형', woman: '박혜민', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '임지은', event: '커튼콜' },
+      { id: 'sep-15-2000', playTitle: '청새치', date: '2026-09-15', day: '화', time: '20:00', visitor: '박슬기', miller: '홍나현', gregorio: '박슬기', event: '싱어롱', song: '그곳이 여기야', ep: '에필1' },
+      { id: 'sep-16-1600', playTitle: '미드나잇 액터뮤지션', date: '2026-09-16', day: '수', time: '16:00', visitor: '박슬기', man: '조현우', woman: '서채이', p1: '양정현', p2: '김소진', p3: '박영훈', p4: '김준', pianist: '조재철', event: '포카증정' },
+      { id: 'sep-19-1500', playTitle: '청새치', date: '2026-09-19', day: '토', time: '15:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '럭드', ep: '에필1' },
+      { id: 'sep-19-1900', playTitle: '청새치', date: '2026-09-19', day: '토', time: '19:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '싱어롱', song: '네가 뭔데', ep: '에필1' },
+      { id: 'sep-20-1400', playTitle: '미드나잇 액터뮤지션', date: '2026-09-20', day: '일', time: '14:00', visitor: '박슬기', man: '한재원', woman: '박혜민', p1: '양정현', p2: '김소진', p3: '박영훈', p4: '신은규', pianist: '전현우', event: '포카증정' },
+      { id: 'sep-20-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-09-20', day: '일', time: '18:00', visitor: '박슬기', man: '조현우', woman: '이상아', p1: '양정현', p2: '김소진', p3: '박영훈', p4: '신은규', pianist: '전현우', event: '포카증정' },
+      { id: 'sep-22-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-09-22', day: '화', time: '20:00', visitor: '박슬기', man: '조현우', woman: '서채이', p1: '김솔', p2: '김소진', p3: '강현동', p4: '김준', pianist: '전현우', event: null },
+      { id: 'sep-23-2000', playTitle: '청새치', date: '2026-09-23', day: '수', time: '20:00', visitor: '박슬기', miller: '전민지', gregorio: '박슬기', event: '에필 촬영', ep: '에필3' },
+      { id: 'sep-24-1800', playTitle: '청새치', date: '2026-09-24', day: '목', time: '18:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '에필 촬영', ep: '에필3' },
+      { id: 'sep-26-1400', playTitle: '미드나잇 액터뮤지션', date: '2026-09-26', day: '토', time: '14:00', visitor: '박슬기', man: '김태형', woman: '이상아', p1: '양정현', p2: '정우림', p3: '박영훈', p4: '신은규', pianist: '전현우', event: null },
+      { id: 'sep-26-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-09-26', day: '토', time: '18:00', visitor: '박슬기', man: '한재원', woman: '이상아', p1: '양정현', p2: '정우림', p3: '박영훈', p4: '신은규', pianist: '전현우', event: null },
+      { id: 'sep-27-1400', playTitle: '청새치', date: '2026-09-27', day: '일', time: '14:00', visitor: '박슬기', miller: '이지연', gregorio: '박슬기', event: '무대인사', ep: '에필3' },
+      { id: 'sep-29-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-09-29', day: '화', time: '20:00', visitor: '박슬기', man: '김태형', woman: '서채이', p1: '양정현', p2: '정우림', p3: '강현동', p4: '김준', pianist: '조재철', event: null },
+      { id: 'oct-04-1400', playTitle: '미드나잇 액터뮤지션', date: '2026-10-04', day: '일', time: '14:00', visitor: '박슬기', man: '한재원', woman: '이상아', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '조재철', event: null },
+      { id: 'oct-04-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-10-04', day: '일', time: '18:00', visitor: '박슬기', man: '조현우', woman: '이상아', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '조재철', event: null },
+      { id: 'oct-07-2000', playTitle: '미드나잇 액터뮤지션', date: '2026-10-07', day: '수', time: '20:00', visitor: '박슬기', man: '조현우', woman: '서채이', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '조재철', event: null },
+      { id: 'oct-09-1400', playTitle: '렛미플라이', date: '2026-10-09', day: '금', time: '14:00', oldNamwon: '이형훈', sunhee: '배해선', youngNamwon: '안지환', jeongbun: '박슬기', event: '꾸러미 증정' },
+      { id: 'oct-10-1900', playTitle: '렛미플라이', date: '2026-10-10', day: '토', time: '19:00', oldNamwon: '이형훈', sunhee: '윤공주', youngNamwon: '안지환', jeongbun: '박슬기', event: '꾸러미 증정' },
+      { id: 'oct-11-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-10-11', day: '일', time: '18:00', visitor: '박슬기', man: '김태형', woman: '박혜민', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '임지은', event: '막공' },
+      { id: 'oct-13-1930', playTitle: '렛미플라이', date: '2026-10-13', day: '화', time: '19:30', oldNamwon: '오의식', sunhee: '윤공주', youngNamwon: '윤소호', jeongbun: '박슬기', event: '커튼콜' },
+      { id: 'oct-17-1900', playTitle: '렛미플라이', date: '2026-10-17', day: '토', time: '19:00', oldNamwon: '오의식', sunhee: '김지현', youngNamwon: '안지환', jeongbun: '박슬기', event: '커튼콜' },
+      { id: 'oct-21-1500', playTitle: '렛미플라이', date: '2026-10-21', day: '수', time: '15:00', oldNamwon: '이희준', sunhee: '윤공주', youngNamwon: '윤소호', jeongbun: '박슬기', event: '전관' },
+      { id: 'oct-25-1400', playTitle: '렛미플라이', date: '2026-10-25', day: '일', time: '14:00', oldNamwon: '안재욱', sunhee: '윤공주', youngNamwon: '윤재호', jeongbun: '박슬기', event: null }
+    ];
+
+    const PROFILE_IMAGES = [
+      { id: 1, src: './psk1.png', alt: 'psk1', link: 'https://zepeakk.github.io/bluepeak/' },
+      { id: 2, src: './psk2.png', alt: 'psk2', link: 'https://zepeakk.github.io/midnightpeak/' },
+      { id: 3, src: './psk3.png', alt: 'psk3', link: 'https://zepeakk.github.io/letmepeak/' }
+    ];
+
+    function CastModal({ schedule, onClose }) {
+      if (!schedule) return null;
+
+      let castList = [];
+      if (schedule.playTitle === '청새치') {
+        castList = [
+          { role: '그레고리오/에벌린', name: schedule.gregorio, highlight: true },
+          { role: '밀러/루소', name: schedule.miller },
+        ];
+      } else if (schedule.playTitle === '렛미플라이') {
+        castList = [
+          { role: '정분', name: schedule.jeongbun, highlight: true },
+          { role: '노인남원', name: schedule.oldNamwon },
+          { role: '선희', name: schedule.sunhee },
+          { role: '청년남원', name: schedule.youngNamwon }
+        ];
+      } else {
+        castList = [
+          { role: 'VISITOR', name: schedule.visitor, highlight: true },
+          { role: 'MAN', name: schedule.man },
+          { role: 'WOMAN', name: schedule.woman },
+          { role: 'PLAYER 1', name: schedule.p1 },
+          { role: 'PLAYER 2', name: schedule.p2 },
+          { role: 'PLAYER 3', name: schedule.p3 },
+          { role: 'PLAYER 4', name: schedule.p4 },
+          { role: 'PIANIST', name: schedule.pianist },
+        ];
+      }
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs" onClick={onClose}>
+          <div className="relative bg-[#FAFCFA] border-2 border-[#2D5A38] rounded-xl w-full max-w-[320px] p-4 shadow-lg space-y-3" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center pb-2 border-b border-[#D2E0D4]">
+              <div className="inline-block bg-[#2D5A38] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
+                {schedule.event || '기본 회차'} {schedule.ep ? `(${schedule.ep})` : ''} {schedule.song ? `- ${schedule.song}` : ''}
+              </div>
+              <h3 className="text-xs font-black text-[#1B3622]">
+                [{schedule.playTitle}] {schedule.date} ({schedule.day}) {schedule.time}
+              </h3>
+            </div>
+
+            <div className={`grid gap-1.5 ${schedule.playTitle === '청새치' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {castList.map((item, idx) => (
+                <div 
+                  key={idx} 
+                  className={`p-1.5 rounded border text-center flex flex-col justify-center ${
+                    item.highlight 
+                      ? 'bg-[#2D5A38] text-white border-[#2D5A38] font-bold' 
+                      : 'bg-white text-[#223328] border-[#D2E0D4]'
+                  }`}
+                >
+                  <span className={`text-[8px] font-semibold tracking-tight ${item.highlight ? 'text-[#C2E0C8]' : 'text-[#527D5C]'}`}>
+                    {item.role}
+                  </span>
+                  <span className="text-[11px] font-bold">{item.name}</span>
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={onClose} 
+              className="w-full py-1.5 bg-[#2D5A38] text-white font-bold text-xs rounded-md hover:bg-[#23472C] transition active:scale-95"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+      const getTextColorClass = (title) => {
+        if (title === '청새치') return 'text-[#0284c7]';
+        if (title === '렛미플라이') return 'text-[#d9536f]';
+        return 'text-[#1e3a8a]';
+      };
+
+      const getBtnStyle = (title, hasEvent) => {
+        if (title === '청새치') {
+          return hasEvent ? 'bg-[#0284c7] text-white' : 'bg-[#e0f2fe] text-[#0369a1]';
+        }
+        if (title === '렛미플라이') {
+          return hasEvent ? 'bg-[#d9536f] text-white' : 'bg-[#fce7f3] text-[#be185d]';
+        }
+        return hasEvent ? 'bg-[#1e3a8a] text-white' : 'bg-[#e0e7ff] text-[#1d4ed8]';
+      };
+
+      return (
+        <div className="max-w-[393px] mx-auto min-h-screen flex flex-col justify-between p-3 box-border space-y-3">
+          <div>
+            {/* 타이틀 영역 */}
+            <header className="text-center py-2 mb-2 border-b border-[#C8DACB]">
+              <h1 className="text-base font-black text-[#1B3622] tracking-wider">PSK</h1>
+            </header>
+
+            {/* 스케줄 테이블 영역 */}
+            <main className="table-container shadow-sm mb-3">
+              <table className="schedule-tbl">
+                <thead>
+                  <tr>
+                    <th style={{ width: '32%' }}>극</th>
+                    <th style={{ width: '24%' }}>일자</th>
+                    <th style={{ width: '18%' }}>시간</th>
+                    <th style={{ width: '26%' }}>출연진 / 이벤트</th>
+                  </tr>
+                </thead>
+                
+                <tbody>
+                  {SCHEDULES.map((item) => {
+                    const colorClass = getTextColorClass(item.playTitle);
+                    return (
+                      <tr key={item.id}>
+                        <td className={`font-bold px-1 ${colorClass}`}>
+                          {item.playTitle}
+                        </td>
+                        <td className={`font-semibold ${colorClass}`}>
+                          {item.date.slice(5)} ({item.day})
+                        </td>
+                        <td className={`font-black ${colorClass}`}>
+                          {item.time}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => setSelectedSchedule(item)}
+                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition active:scale-95 ${getBtnStyle(item.playTitle, !!item.event)}`}
+                          >
+                            {item.event || '출연진'}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </main>
+
+            {/* 프로필 이미지 + 정산판 이동 버튼 영역 */}
+            <section className="grid grid-cols-3 gap-2 p-2 bg-white/80 rounded-xl border border-[#D2E0D4] shadow-xs backdrop-blur-xs">
+              {PROFILE_IMAGES.map((img) => (
+                <div key={img.id} className="flex flex-col space-y-1.5">
+                  <div className="relative aspect-square w-full rounded-lg overflow-hidden border border-[#D2E0D4] bg-[#F4F8F5] flex items-center justify-center">
+                    <img 
+                      src={img.src} 
+                      alt={img.alt} 
+                      className="w-full h-full object-cover object-top transition-transform duration-200 hover:scale-105"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="hidden absolute inset-0 flex-col items-center justify-center text-[10px] text-[#527D5C] font-bold bg-[#EBF1EC]">
+                      <span>{img.alt}</span>
+                      <span className="text-[8px] font-normal text-[#88998C]">.png</span>
+                    </div>
+                  </div>
+
+                  {/* 정산판 버튼 (배경색 없음, 라인만 투명하게 매칭) */}
+                  <a
+                    href={img.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-center w-full py-1 bg-transparent border border-[#D2E0D4] text-[#2D5A38] text-[10px] font-semibold rounded-md hover:bg-white/50 transition active:scale-95"
+                  >
+                    정산판
+                  </a>
+                </div>
+              ))}
+            </section>
+          </div>
+
+          {/* 이벤트 클릭 모달 */}
+          {selectedSchedule && (
+            <CastModal schedule={selectedSchedule} onClose={() => setSelectedSchedule(null)} />
+          )}
+
+          {/* 하단 문의 문구 */}
+          <footer className="text-center py-2">
+            <p className="text-[8px] text-[#527D5C] font-semibold">
+              문의 @hillpeakk 로 주세요.
+            </p>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
