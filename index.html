@@ -4,11 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PSK Schedule</title>
+  
   <!-- React 및 Tailwind CSS CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 구글 필기체 폰트 (Dancing Script) 추가 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -28,26 +34,32 @@
       background-color: var(--bg-paper);
     }
 
+    /* 타이틀용 필기체 클래스 */
+    .font-script {
+      font-family: 'Dancing Script', cursive;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* 자연/풀/나무 선 드로잉 배경 (Base64 인코딩) */
+    /* 음표, 마이크, 자연, 나뭇잎, 새싹 선 드로잉 배경 (인코딩 안전 처리) */
     .bg-nature-lines {
       background-color: #EBF1EC;
-      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+PGcgc3Ryb2tlPSIjMkQ1QTM4IiBzdHJva2Utd2lkdGg9IjEuMiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIwLjE4Ij48cGF0aCBkPSJNMjAgMTUwIEMgNDAgOTAsIDYwIDEyMCwgODAgMTUwIi8+PHBhdGggZD0iTTM1IDE0MCBDIDUwIDExMCwgNzAgMTQwLCA5MCAxMzAiLz48cGF0aCBkPSJNMTQwIDQwIEMgMTgwIDEwLCAxNjAgMCwgMTUwIDUwIEMgMTcwIDMwLCAxODAgNjAs IDE0MCA4MCIvPjxwYXRoIGQ9Ik0xNTAgNTAgTCAxNDAgOTAiLz48Y2lyY2xlIGN4PSIxNDAiIGN5PSIyNSIgcj0iMyIvPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjM1IiByPSIyLjUiLz48cGF0aCBkPSJNMTAgMzAgUSAzMCAwLCA1MCAyNSBUIDkwIDIwIi8+PHBhdGggZD0iTTExMCAxNjAgUSAxMzAgMTIwLCAxNjAgMTcwIi8+PHBhdGggZD0iTTEyNSAxNDAgUSAxNDAgMTMwLCAxMzUgMTQ1Ii8+PC9nPjwvc3ZnPg==');
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg stroke='%232D5A38' stroke-width='1.2' fill='none' stroke-linecap='round' stroke-linejoin='round' opacity='0.25'%3E%3C!-- 8분음표 --%3E%3Ccircle cx='30' cy='50' r='5'/%3E%3Cpath d='M35 50V25l20-5v25'/%3E%3Ccircle cx='50' cy='45' r='5'/%3E%3C!-- 마이크 --%3E%3Crect x='140' y='25' width='16' height='24' rx='8'/%3E%3Cpath d='M136 37a20 20 0 0 0 24 0M148 49v12M140 61h16'/%3E%3C!-- 새싹 --%3E%3Cpath d='M40 160c10-15 25-10 25-10s0 15-15 20c-5 2-10 0-10-10z'/%3E%3Cpath d='M40 160c-10-15-25-10-25-10s0 15 15 20c5 2 10 0 10-10z'/%3E%3Cpath d='M40 160v20'/%3E%3C!-- 나뭇잎 --%3E%3Cpath d='M150 130c15-20 35-10 35-10s5 25-15 30c-10 3-18-2-20-20z'/%3E%3Cpath d='M150 130c10 10 25 15 35 10'/%3E%3C!-- 높은음자리표 느낌 & 음표2 --%3E%3Ccircle cx='100' cy='100' r='6'/%3E%3Cpath d='M106 100V70l15-4v25'/%3E%3C!-- 풀잎 스케치 --%3E%3Cpath d='M80 180c5-25 20-30 20-30s5 15-5 30'/%3E%3Cpath d='M95 180c5-18 15-22 15-22s3 10-5 22'/%3E%3C/g%3E%3C/svg%3E");
       background-repeat: repeat;
-      background-size: 160px 160px;
+      background-size: 180px 180px;
     }
 
-    /* 스케줄 테이블 및 Sticky 헤더 설정 */
-    .table-container {
+    /* 스케줄 테이블 및 캘린더 컨테이너 설정 */
+    .view-container {
       max-height: 58vh;
+      min-height: 58vh;
       overflow-y: auto;
       overflow-x: hidden;
       border-radius: 12px;
       border: 1px solid var(--border-color);
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(4px);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(3px);
     }
 
     table.schedule-tbl {
@@ -160,6 +172,7 @@
       { id: 3, src: './psk3.png', alt: 'psk3', link: 'https://zepeakk.github.io/letmepeak/' }
     ];
 
+    /* --- 출연진 상세 모달 --- */
     function CastModal({ schedule, onClose }) {
       if (!schedule) return null;
 
@@ -192,7 +205,16 @@
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs" onClick={onClose}>
           <div className="relative bg-[#FAFCFA] border-2 border-[#2D5A38] rounded-xl w-full max-w-[320px] p-4 shadow-lg space-y-3" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center pb-2 border-b border-[#D2E0D4]">
+            
+            {/* 상단 닫기(X) 버튼 */}
+            <button 
+              onClick={onClose} 
+              className="absolute top-2.5 right-3 text-gray-400 hover:text-[#2D5A38] font-bold text-lg leading-none p-1 transition"
+            >
+              ✕
+            </button>
+
+            <div className="text-center pb-2 border-b border-[#D2E0D4] pr-4">
               <div className="inline-block bg-[#2D5A38] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
                 {schedule.event || '기본 회차'} {schedule.ep ? `(${schedule.ep})` : ''} {schedule.song ? `- ${schedule.song}` : ''}
               </div>
@@ -230,8 +252,173 @@
       );
     }
 
+    /* --- 일자별 상세 스케줄 선택 모달 --- */
+    function DailyModal({ dateStr, schedules, onClose, onSelectSchedule }) {
+      if (!dateStr) return null;
+
+      const dateObj = new Date(dateStr);
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+      const formattedDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 (${dayNames[dateObj.getDay()]})`;
+
+      const getTitleBg = (title) => {
+        if (title === '청새치') return 'bg-[#0284c7] text-white';
+        if (title === '렛미플라이') return 'bg-[#d9536f] text-white';
+        return 'bg-[#1e3a8a] text-white';
+      };
+
+      return (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs" onClick={onClose}>
+          <div className="relative bg-white border-2 border-[#2D5A38] rounded-xl w-full max-w-[300px] p-4 shadow-xl space-y-3" onClick={(e) => e.stopPropagation()}>
+            
+            {/* 상단 닫기(X) 버튼 */}
+            <button 
+              onClick={onClose} 
+              className="absolute top-2.5 right-3 text-gray-400 hover:text-[#2D5A38] font-bold text-lg leading-none p-1 transition"
+            >
+              ✕
+            </button>
+
+            <div className="text-center pb-2 border-b border-[#D2E0D4] pr-4">
+              <h3 className="text-xs font-black text-[#1B3622]">{formattedDate} 일정</h3>
+            </div>
+
+            <div className="space-y-2 max-h-[220px] overflow-y-auto no-scrollbar">
+              {schedules.length === 0 ? (
+                <p className="text-center text-xs text-gray-400 py-4 font-semibold">예정된 일정이 없습니다.</p>
+              ) : (
+                schedules.map((item) => (
+                  <div 
+                    key={item.id}
+                    onClick={() => onSelectSchedule(item)}
+                    className="p-2.5 rounded-lg border border-[#D2E0D4] bg-[#F9FBF9] hover:bg-[#EBF1EC] cursor-pointer transition active:scale-98 flex items-center justify-between"
+                  >
+                    <div>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded mr-1.5 ${getTitleBg(item.playTitle)}`}>
+                        {item.playTitle}
+                      </span>
+                      <span className="text-xs font-black text-[#1B3622]">{item.time}</span>
+                    </div>
+                    {item.event && (
+                      <span className="text-[9px] font-bold text-[#2D5A38] bg-white border border-[#2D5A38] px-1.5 py-0.5 rounded-full">
+                        {item.event}
+                      </span>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button 
+              onClick={onClose} 
+              className="w-full py-1.5 bg-gray-200 text-gray-700 font-bold text-xs rounded-md hover:bg-gray-300 transition active:scale-95"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    /* --- 월별 캘린더 뷰 컴포넌트 --- */
+    function CalendarView({ schedules, onSelectSchedule }) {
+      const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1)); // 2026년 8월 기준
+      const [selectedDate, setSelectedDate] = useState(null);
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+      const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+
+      const firstDayOfMonth = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const daysArray = [];
+      for (let i = 0; i < firstDayOfMonth; i++) daysArray.push(null);
+      for (let d = 1; d <= daysInMonth; d++) daysArray.push(d);
+
+      const getChipStyle = (title) => {
+        if (title === '청새치') return 'bg-[#e0f2fe] text-[#0369a1] border-[#7dd3fc]';
+        if (title === '렛미플라이') return 'bg-[#fce7f3] text-[#be185d] border-[#f472b6]';
+        return 'bg-[#e0e7ff] text-[#1d4ed8] border-[#818cf8]';
+      };
+
+      const dailySchedules = selectedDate 
+        ? schedules.filter((s) => s.date === selectedDate)
+        : [];
+
+      return (
+        <div className="p-2 space-y-2">
+          {/* 달력 컨트롤러 */}
+          <div className="flex items-center justify-between px-2 py-1 bg-white rounded-lg border border-[#D2E0D4]">
+            <span className="text-xs font-black text-[#1B3622]">{year}년 {month + 1}월</span>
+            <div className="flex space-x-1">
+              <button onClick={prevMonth} className="px-2 py-0.5 border rounded text-xs font-bold bg-[#F4F8F5] text-[#2D5A38] hover:bg-[#EBF1EC] active:scale-95">&lt;</button>
+              <button onClick={nextMonth} className="px-2 py-0.5 border rounded text-xs font-bold bg-[#F4F8F5] text-[#2D5A38] hover:bg-[#EBF1EC] active:scale-95">&gt;</button>
+            </div>
+          </div>
+
+          {/* 요일 헤더 */}
+          <div className="grid grid-cols-7 text-center text-[10px] font-bold text-gray-500 bg-white/50 py-1 rounded">
+            <span className="text-red-500">일</span>
+            <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span>
+            <span className="text-blue-500">토</span>
+          </div>
+
+          {/* 달력 날짜 셀 */}
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {daysArray.map((day, idx) => {
+              if (!day) return <div key={idx} className="h-12"></div>;
+
+              const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+              const daySchedules = schedules.filter((s) => s.date === dateStr);
+              const hasSchedules = daySchedules.length > 0;
+
+              return (
+                <div 
+                  key={idx} 
+                  onClick={() => setSelectedDate(dateStr)}
+                  className={`h-12 border rounded p-0.5 flex flex-col justify-start overflow-hidden cursor-pointer transition active:scale-95 ${
+                    hasSchedules ? 'bg-white hover:bg-[#F4F8F5] border-[#2D5A38]/40 shadow-xs' : 'bg-white/50 border-[#D2E0D4]'
+                  }`}
+                >
+                  <span className={`text-[9px] font-bold self-start leading-none mb-0.5 ${hasSchedules ? 'text-[#1B3622]' : 'text-gray-400'}`}>
+                    {day}
+                  </span>
+                  <div className="space-y-0.5 overflow-hidden w-full">
+                    {daySchedules.map((item) => (
+                      <div
+                        key={item.id}
+                        className={`w-full text-[7px] font-extrabold px-0.5 py-0.2 rounded border truncate text-left leading-tight ${getChipStyle(item.playTitle)}`}
+                      >
+                        {item.time} {item.playTitle.slice(0, 2)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 일자별 상세 일정 모달 */}
+          {selectedDate && (
+            <DailyModal
+              dateStr={selectedDate}
+              schedules={dailySchedules}
+              onClose={() => setSelectedDate(null)}
+              onSelectSchedule={(item) => {
+                setSelectedDate(null);
+                onSelectSchedule(item);
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+
     function App() {
       const [selectedSchedule, setSelectedSchedule] = useState(null);
+      const [viewMode, setViewMode] = useState('list');
 
       const getTextColorClass = (title) => {
         if (title === '청새치') return 'text-[#0284c7]';
@@ -252,50 +439,67 @@
       return (
         <div className="max-w-[393px] mx-auto min-h-screen flex flex-col justify-between p-3 box-border space-y-3">
           <div>
-            {/* 타이틀 영역 */}
-            <header className="text-center py-2 mb-2 border-b border-[#C8DACB]">
-              <h1 className="text-base font-black text-[#1B3622] tracking-wider">PSK</h1>
+            {/* 타이틀 및 모드 전환 버튼 영역 */}
+            <header className="flex items-center justify-between py-1 mb-2 border-b border-[#C8DACB]">
+              <h1 className="font-script text-2xl font-bold text-[#1B3622] leading-none py-1 tracking-wide">
+                PSK
+              </h1>
+              
+              <button
+                onClick={() => setViewMode(viewMode === 'list' ? 'calendar' : 'list')}
+                className="text-[10px] font-bold px-2 py-1 bg-white border border-[#2D5A38] text-[#2D5A38] rounded-md shadow-xs hover:bg-[#F4F8F5] transition active:scale-95 flex items-center space-x-1"
+              >
+                <span>{viewMode === 'list' ? '월별 캘린더 보기' : '일정 보기'}</span>
+                <span className="text-[9px]">&gt;</span>
+              </button>
             </header>
 
-            {/* 스케줄 테이블 영역 */}
-            <main className="table-container shadow-sm mb-3">
-              <table className="schedule-tbl">
-                <thead>
-                  <tr>
-                    <th style={{ width: '32%' }}>극</th>
-                    <th style={{ width: '24%' }}>일자</th>
-                    <th style={{ width: '18%' }}>시간</th>
-                    <th style={{ width: '26%' }}>출연진 / 이벤트</th>
-                  </tr>
-                </thead>
-                
-                <tbody>
-                  {SCHEDULES.map((item) => {
-                    const colorClass = getTextColorClass(item.playTitle);
-                    return (
-                      <tr key={item.id}>
-                        <td className={`font-bold px-1 ${colorClass}`}>
-                          {item.playTitle}
-                        </td>
-                        <td className={`font-semibold ${colorClass}`}>
-                          {item.date.slice(5)} ({item.day})
-                        </td>
-                        <td className={`font-black ${colorClass}`}>
-                          {item.time}
-                        </td>
-                        <td>
-                          <button
-                            onClick={() => setSelectedSchedule(item)}
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition active:scale-95 ${getBtnStyle(item.playTitle, !!item.event)}`}
-                          >
-                            {item.event || '출연진'}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            {/* 스케줄 보기 영역 (리스트 / 캘린더) */}
+            <main className="view-container shadow-sm mb-3">
+              {viewMode === 'list' ? (
+                <table className="schedule-tbl">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '32%' }}>극</th>
+                      <th style={{ width: '24%' }}>일자</th>
+                      <th style={{ width: '18%' }}>시간</th>
+                      <th style={{ width: '26%' }}>출연진 / 이벤트</th>
+                    </tr>
+                  </thead>
+                  
+                  <tbody>
+                    {SCHEDULES.map((item) => {
+                      const colorClass = getTextColorClass(item.playTitle);
+                      return (
+                        <tr key={item.id}>
+                          <td className={`font-bold px-1 ${colorClass}`}>
+                            {item.playTitle}
+                          </td>
+                          <td className={`font-semibold ${colorClass}`}>
+                            {item.date.slice(5)} ({item.day})
+                          </td>
+                          <td className={`font-black ${colorClass}`}>
+                            {item.time}
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => setSelectedSchedule(item)}
+                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition active:scale-95 ${getBtnStyle(item.playTitle, !!item.event)}`}
+                            >
+                              {item.event || '출연진'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <CalendarView
+                  schedules={SCHEDULES}
+                  onSelectSchedule={(item) => setSelectedSchedule(item)}
+                />
+              )}
             </main>
 
             {/* 프로필 이미지 + 정산판 이동 버튼 영역 */}
@@ -318,7 +522,6 @@
                     </div>
                   </div>
 
-                  {/* 정산판 버튼 (배경색 없음, 라인만 투명하게 매칭) */}
                   <a
                     href={img.link}
                     target="_blank"
@@ -332,7 +535,7 @@
             </section>
           </div>
 
-          {/* 이벤트 클릭 모달 */}
+          {/* 캐스팅 / 이벤트 정보 모달 */}
           {selectedSchedule && (
             <CastModal schedule={selectedSchedule} onClose={() => setSelectedSchedule(null)} />
           )}
