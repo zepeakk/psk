@@ -168,8 +168,8 @@
       { id: 'oct-11-1800', playTitle: '미드나잇 액터뮤지션', date: '2026-10-11', day: '일', time: '18:00', visitor: '박슬기', man: '김태형', woman: '박혜민', p1: '김솔', p2: '정우림', p3: '박영훈', p4: '김준', pianist: '임지은', event: '막공' },
       { id: 'oct-13-1930', playTitle: '렛미플라이', date: '2026-10-13', day: '화', time: '19:30', oldNamwon: '오의식', sunhee: '윤공주', youngNamwon: '윤소호', jeongbun: '박슬기', event: '럭드/커튼콜' },
       { id: 'oct-17-1900', playTitle: '렛미플라이', date: '2026-10-17', day: '토', time: '19:00', oldNamwon: '오의식', sunhee: '김지현', youngNamwon: '안지환', jeongbun: '박슬기', event: '럭드/커튼콜' },
-      { id: 'oct-21-1500', playTitle: '렛미플라이', date: '2026-10-21', day: '수', time: '15:00', oldNamwon: '이희준', sunhee: '윤공주', youngNamwon: '윤소호', jeongbun: '박슬기', event: '그레이공DAY' },
-      { id: 'oct-25-1400', playTitle: '렛미플라이', date: '2026-10-25', day: '일', time: '14:00', oldNamwon: '안재욱', sunhee: '윤공주', youngNamwon: '윤재호', jeongbun: '박슬기', event: '스콜' },
+      { id: 'oct-21-1500', playTitle: '렛미플라이', date: '2026-10-21', day: '수', time: '15:00', oldNamwon: '이희준', sunhee: '윤공주', youngNamwon: '윤소호', jeongbun: '박슬기', event: '그래이공day' },
+      { id: 'oct-25-1400', playTitle: '렛미플라이', date: '2026-10-25', day: '일', time: '14:00', oldNamwon: '안재욱', sunhee: '윤공주', youngNamwon: '윤재호', jeongbun: '박슬기', event: '스콜', song: '세상은 변해가' },
       { id: 'oct-29-1930', playTitle: '렛미플라이', date: '2026-10-29', day: '목', time: '19:30', oldNamwon: '이희준', sunhee: '배해선', youngNamwon: '안지환', jeongbun: '박슬기', event: null },
       { id: 'oct-31-1900', playTitle: '렛미플라이', date: '2026-10-31', day: '토', time: '19:00', oldNamwon: '오의식', sunhee: '윤공주', youngNamwon: '안지환', jeongbun: '박슬기', event: null },
       { id: 'nov-04-1500', playTitle: '렛미플라이', date: '2026-11-04', day: '수', time: '15:00', oldNamwon: '안재욱', sunhee: '배해선', youngNamwon: '윤재호', jeongbun: '박슬기', event: null },
@@ -242,21 +242,33 @@
             </div>
 
             <div className={`grid gap-1.5 ${schedule.playTitle === '청새치' ? 'grid-cols-1' : 'grid-cols-2'}`}>
-              {castList.map((item, idx) => (
-                <div 
-                  key={idx} 
-                  className={`p-1.5 rounded border text-center flex flex-col justify-center ${
-                    item.highlight 
-                      ? 'bg-[#2D5A38] text-white border-[#2D5A38] font-bold' 
-                      : 'bg-white text-[#223328] border-[#D2E0D4]'
-                  }`}
-                >
-                  <span className={`text-[8px] font-semibold tracking-tight ${item.highlight ? 'text-[#C2E0C8]' : 'text-[#527D5C]'}`}>
-                    {item.role}
-                  </span>
-                  <span className="text-[11px] font-bold">{item.name}</span>
-                </div>
-              ))}
+              {castList.map((item, idx) => {
+                const isRedBorder = schedule.date === '2026-10-25' && (item.name === '박슬기' || item.name === '윤재호');
+                
+                let boxClass = "p-1.5 rounded border text-center flex flex-col justify-center ";
+                if (isRedBorder) {
+                  boxClass += "border-2 border-red-500 ";
+                } else if (item.highlight) {
+                  boxClass += "border-[#2D5A38] ";
+                } else {
+                  boxClass += "border-[#D2E0D4] ";
+                }
+
+                if (item.highlight) {
+                  boxClass += "bg-[#2D5A38] text-white font-bold";
+                } else {
+                  boxClass += "bg-white text-[#223328]";
+                }
+
+                return (
+                  <div key={idx} className={boxClass}>
+                    <span className={`text-[8px] font-semibold tracking-tight ${item.highlight ? 'text-[#C2E0C8]' : 'text-[#527D5C]'}`}>
+                      {item.role}
+                    </span>
+                    <span className="text-[11px] font-bold">{item.name}</span>
+                  </div>
+                );
+              })}
             </div>
 
             <button 
@@ -645,7 +657,7 @@
               로 주세요. 
             </p>
             <p className="text-[8px] text-[#527D5C]/80 font-medium">
-              슬기 최고 ♡ <span className="text-[7.5px] text-[#88998C] ml-1">(최종 업데이트: 2026.09.22)</span>
+              슬기 최고 ♡ <span className="text-[7.5px] text-[#88998C] ml-1">(최종 업데이트: 2026.10.04.)</span>
             </p>
           </footer>
         </div>
