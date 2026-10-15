@@ -98,6 +98,13 @@
       border: 2px solid #EF4444 !important;
       background-color: #FEF2F2 !important;
     }
+
+    .year-header-row td {
+      background-color: #F3F7F4;
+      border-top: 1px solid #D2E0D4;
+      border-bottom: 1px solid #D2E0D4;
+      padding: 6px 0 !important;
+    }
   </style>
 </head>
 <body class="bg-nature-lines text-[#223328] min-h-screen">
@@ -182,7 +189,9 @@
       { id: 'nov-24-1930', playTitle: '렛미플라이', date: '2026-11-24', day: '화', time: '19:30', oldNamwon: '오의식', sunhee: '김지현', youngNamwon: '윤소호', jeongbun: '박슬기', event: null },
       { id: 'nov-27-1930', playTitle: '렛미플라이', date: '2026-11-27', day: '금', time: '19:30', oldNamwon: '이희준', sunhee: '김지현', youngNamwon: '윤재호', jeongbun: '박슬기', event: null },
       { id: 'nov-28-1900', playTitle: '렛미플라이', date: '2026-11-28', day: '토', time: '19:00', oldNamwon: '이형훈', sunhee: '배해선', youngNamwon: '윤재호', jeongbun: '박슬기', event: null },
-      { id: 'nov-29-1800', playTitle: '렛미플라이', date: '2026-11-29', day: '일', time: '18:00', oldNamwon: '이희준', sunhee: '윤공주', 안지환: '안지환', jeongbun: '박슬기', event: null }
+      { id: 'nov-29-1800', playTitle: '렛미플라이', date: '2026-11-29', day: '일', time: '18:00', oldNamwon: '이희준', sunhee: '윤공주', 안지환: '안지환', jeongbun: '박슬기', event: null },
+      { id: 'divider-2027', isYearDivider: true, yearLabel: '2027년' },
+      { id: 'jan-09-2027-bday', playTitle: '✦ ── 슬기 생일 ── ✦', date: '2027-01-09', day: '토', time: 'Happy', event: 'Birthday', isSpecialRow: true }
     ];
 
     const PROFILE_IMAGES = [
@@ -201,7 +210,7 @@
 
     /* --- 출연진 상세 모달 --- */
     function CastModal({ schedule, onClose }) {
-      if (!schedule) return null;
+      if (!schedule || schedule.isSpecialRow) return null;
 
       let castList = [];
       if (schedule.playTitle === '청새치') {
@@ -292,7 +301,7 @@
     }
 
     /* --- 일자별 상세 스케줄 모달 --- */
-    function DailyModal({ dateStr, schedules, onClose, onSelectSchedule }) {
+    function DailyModal({ dateStr, schedules, specialAnniversaries, onClose, onSelectSchedule }) {
       if (!dateStr) return null;
 
       const dateObj = new Date(dateStr);
@@ -304,6 +313,8 @@
         if (title === '렛미플라이') return 'bg-[#d9536f] text-white';
         return 'bg-[#1e3a8a] text-white';
       };
+
+      const hasContent = schedules.length > 0 || specialAnniversaries.length > 0;
 
       return (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs" onClick={onClose}>
@@ -320,7 +331,13 @@
             </div>
 
             <div className="space-y-2 max-h-[220px] overflow-y-auto no-scrollbar">
-              {schedules.length === 0 ? (
+              {specialAnniversaries.map((ann, idx) => (
+                <div key={`ann-${idx}`} className="p-2 rounded-lg border border-pink-300 bg-pink-50 text-center font-bold text-xs text-pink-600 shadow-xs">
+                  {ann}
+                </div>
+              ))}
+
+              {!hasContent ? (
                 <p className="text-center text-xs text-gray-400 py-4 font-semibold">예정된 일정이 없습니다.</p>
               ) : (
                 schedules.map((item) => (
@@ -379,8 +396,27 @@
         return 'bg-[#e0e7ff] text-[#1d4ed8] border-[#818cf8]';
       };
 
-      const dailySchedules = selectedDate 
-        ? schedules.filter((s) => s.date === selectedDate)
+      // 특정 일자별 기념일 반환 함수 (매년 1/9 슬기 생일, 5/18 슬기 데뷔 N주년)
+      const getAnniversariesForDate = (m, d, y) => {
+        const anns = [];
+        if (m === 0 && d === 9) {
+          anns.push("슬기 생일 ♥");
+        }
+        if (m === 4 && d === 18) {
+          const years = y - 2018;
+          if (years > 0) {
+            anns.push(`슬기 데뷔 ${years}주년`);
+          }
+        }
+        return anns;
+      };
+
+      const selectedDateObj = selectedDate ? new Date(selectedDate) : null;
+      const selectedDailySchedules = selectedDate 
+        ? schedules.filter((s) => s.date === selectedDate && !s.isSpecialRow && !s.isYearDivider)
+        : [];
+      const selectedDailyAnns = selectedDateObj 
+        ? getAnniversariesForDate(selectedDateObj.getMonth(), selectedDateObj.getDate(), selectedDateObj.getFullYear())
         : [];
 
       return (
@@ -407,8 +443,9 @@
               if (!day) return <div key={idx} className="h-12"></div>;
 
               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-              const daySchedules = schedules.filter((s) => s.date === dateStr);
-              const hasSchedules = daySchedules.length > 0;
+              const daySchedules = schedules.filter((s) => s.date === dateStr && !s.isSpecialRow && !s.isYearDivider);
+              const anniversaries = getAnniversariesForDate(month, day, year);
+              const hasSchedules = daySchedules.length > 0 || anniversaries.length > 0;
               const isToday = dateStr === todayStr;
 
               return (
@@ -435,6 +472,14 @@
                   </div>
 
                   <div className="space-y-0.5 overflow-hidden w-full mt-0.5">
+                    {anniversaries.map((ann, aIdx) => (
+                      <div
+                        key={`ann-chip-${aIdx}`}
+                        className="w-full text-[6.5px] font-black px-0.5 py-0.2 rounded border border-pink-300 bg-pink-100 text-pink-700 truncate text-left leading-tight"
+                      >
+                        {ann}
+                      </div>
+                    ))}
                     {daySchedules.map((item) => (
                       <div
                         key={item.id}
@@ -453,7 +498,8 @@
           {selectedDate && (
             <DailyModal
               dateStr={selectedDate}
-              schedules={dailySchedules}
+              schedules={selectedDailySchedules}
+              specialAnniversaries={selectedDailyAnns}
               onClose={() => setSelectedDate(null)}
               onSelectSchedule={(item) => {
                 setSelectedDate(null);
@@ -473,7 +519,7 @@
       const targetRowRef = useRef(null);
 
       // 오늘 날짜 이후 가장 빠른 공연 찾기 (오늘 날짜 포함)
-      const closestItem = SCHEDULES.find((item) => item.date >= todayStr) || SCHEDULES[SCHEDULES.length - 1];
+      const closestItem = SCHEDULES.find((item) => item.date >= todayStr && !item.isYearDivider) || SCHEDULES[SCHEDULES.length - 1];
 
       useEffect(() => {
         if (viewMode === 'list' && targetRowRef.current) {
@@ -484,20 +530,11 @@
         }
       }, [viewMode]);
 
-      const getTextColorClass = (title) => {
+      const getTextColorClass = (title, isSpecial) => {
+        if (isSpecial) return 'text-[#DB2777]';
         if (title === '청새치') return 'text-[#0284c7]';
         if (title === '렛미플라이') return 'text-[#d9536f]';
         return 'text-[#1e3a8a]';
-      };
-
-      const getBtnStyle = (title, hasEvent) => {
-        if (title === '청새치') {
-          return hasEvent ? 'bg-[#0284c7] text-white' : 'bg-[#e0f2fe] text-[#0369a1]';
-        }
-        if (title === '렛미플라이') {
-          return hasEvent ? 'bg-[#d9536f] text-white' : 'bg-[#fce7f3] text-[#be185d]';
-        }
-        return hasEvent ? 'bg-[#1e3a8a] text-white' : 'bg-[#e0e7ff] text-[#1d4ed8]';
       };
 
       return (
@@ -540,7 +577,17 @@
                   
                   <tbody>
                     {SCHEDULES.map((item) => {
-                      const colorClass = getTextColorClass(item.playTitle);
+                      if (item.isYearDivider) {
+                        return (
+                          <tr key={item.id} className="year-header-row">
+                            <td colSpan="4" className="text-center font-black text-xs text-[#2D5A38] tracking-widest bg-[#EBF1EC]/80 py-1.5">
+                              ━━━━━ &nbsp; {item.yearLabel} &nbsp; ━━━━━
+                            </td>
+                          </tr>
+                        );
+                      }
+
+                      const colorClass = getTextColorClass(item.playTitle, item.isSpecialRow);
                       const isToday = item.date === todayStr;
                       const isTarget = item.id === closestItem?.id;
 
@@ -550,7 +597,7 @@
                           ref={isTarget ? targetRowRef : null} 
                           className={isToday ? 'today-row' : ''}
                         >
-                          <td className={`font-bold px-1 ${colorClass}`}>
+                          <td className={`font-black px-1 ${colorClass}`}>
                             {isToday && (
                               <span className="inline-block bg-red-500 text-white text-[7px] font-extrabold px-1 rounded mr-1 animate-pulse">
                                 오늘
@@ -558,19 +605,31 @@
                             )}
                             {item.playTitle}
                           </td>
-                          <td className={`font-semibold ${colorClass}`}>
+                          <td className={`font-extrabold ${colorClass}`}>
                             {item.date.slice(5)} ({item.day})
                           </td>
-                          <td className={`font-black ${colorClass}`}>
+                          <td className={`font-black ${item.isSpecialRow ? 'text-[#EC4899]' : colorClass}`}>
                             {item.time}
                           </td>
-                          <td>
-                            <button
-                              onClick={() => setSelectedSchedule(item)}
-                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded transition active:scale-95 ${getBtnStyle(item.playTitle, !!item.event)}`}
-                            >
-                              {item.event || '출연진'}
-                            </button>
+                          <td className="font-bold">
+                            {item.isSpecialRow ? (
+                              <span className="text-[#EC4899] font-black text-[10px]">
+                                {item.event}
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => setSelectedSchedule(item)}
+                                className={`text-[9px] font-black px-1.5 py-0.5 rounded transition active:scale-95 ${
+                                  item.playTitle === '청새치' 
+                                    ? (item.event ? 'bg-[#0284c7] text-white' : 'bg-[#e0f2fe] text-[#0369a1]')
+                                    : item.playTitle === '렛미플라이'
+                                      ? (item.event ? 'bg-[#d9536f] text-white' : 'bg-[#fce7f3] text-[#be185d]')
+                                      : (item.event ? 'bg-[#1e3a8a] text-white' : 'bg-[#e0e7ff] text-[#1d4ed8]')
+                                }`}
+                              >
+                                {item.event || '출연진'}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       );
