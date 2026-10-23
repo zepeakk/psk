@@ -177,11 +177,12 @@
       { id: 'oct-17-1900', playTitle: '렛미플라이', date: '2026-10-17', day: '토', time: '19:00', oldNamwon: '오의식', sunhee: '김지현', youngNamwon: '안지환', jeongbun: '박슬기', event: '럭드/커튼콜' },
       { id: 'oct-21-1500', playTitle: '렛미플라이', date: '2026-10-21', day: '수', time: '15:00', oldNamwon: '이희준', sunhee: '윤공주', youngNamwon: '윤소호', jeongbun: '박슬기', event: '그래이공day' },
       { id: 'oct-25-1400', playTitle: '렛미플라이', date: '2026-10-25', day: '일', time: '14:00', oldNamwon: '안재욱', sunhee: '윤공주', youngNamwon: '윤재호', jeongbun: '박슬기', event: '스콜', song: '세상은 변해가' },
-      { id: 'oct-29-1930', playTitle: '렛미플라이', date: '2026-10-29', day: '목', time: '19:30', oldNamwon: '이희준', sunhee: '배해선', youngNamwon: '안지환', jeongbun: '박슬기', event: null },
+      { id: 'oct-29-1930', playTitle: '렛미플라이', date: '2026-10-29', day: '목', time: '19:30', oldNamwon: '이희준', sunhee: '배해선', youngNamwon: '안지환', jeongbun: '박슬기', event: '관대', eventDisplay: '관객과의 대화', subText: '(+이대웅 연출가, 홍유선 안무가, 민활란 음악감독)' },
       { id: 'oct-31-1900', playTitle: '렛미플라이', date: '2026-10-31', day: '토', time: '19:00', oldNamwon: '오의식', sunhee: '윤공주', youngNamwon: '안지환', jeongbun: '박슬기', event: null },
+      { id: 'nov-03-1930', playTitle: '렛미플라이', date: '2026-11-03', day: '화', time: '19:30', oldNamwon: '오의식', sunhee: '김지현', youngNamwon: '안지환', jeongbun: '박슬기', event: null },
       { id: 'nov-04-1500', playTitle: '렛미플라이', date: '2026-11-04', day: '수', time: '15:00', oldNamwon: '안재욱', sunhee: '배해선', youngNamwon: '윤재호', jeongbun: '박슬기', event: null },
       { id: 'nov-08-1800', playTitle: '렛미플라이', date: '2026-11-08', day: '일', time: '18:00', oldNamwon: '이형훈', sunhee: '윤공주', youngNamwon: '윤소호', jeongbun: '박슬기', event: null },
-      { id: 'nov-11-1500', playTitle: '렛미플라이', date: '2026-11-11', day: '수', time: '15:00', oldNamwon: '이희준', sunhee: '윤공주', youngNamwon: '윤재호', jeongbun: '박슬기', event: '전관' },
+      { id: 'nov-11-1500', playTitle: '렛미플라이', date: '2026-11-11', day: '수', time: '15:00', oldNamwon: '이희준', sunhee: '윤공주', youngNamwon: '윤재호', jeongbun: '박슬기', event: '티링 전관', eventDisplay: 'link special day' },
       { id: 'nov-12-1930', playTitle: '렛미플라이', date: '2026-11-12', day: '목', time: '19:30', oldNamwon: '이형훈', sunhee: '배해선', youngNamwon: '윤재호', jeongbun: '박슬기', event: null },
       { id: 'nov-17-1930', playTitle: '렛미플라이', date: '2026-11-17', day: '화', time: '19:30', oldNamwon: '오의식', sunhee: '김지현', youngNamwon: '안지환', jeongbun: '박슬기', event: null },
       { id: 'nov-19-1930', playTitle: '렛미플라이', date: '2026-11-19', day: '목', time: '19:30', oldNamwon: '안재욱', sunhee: '윤공주', youngNamwon: '윤재호', jeongbun: '박슬기', event: null },
@@ -288,6 +289,12 @@
                 );
               })}
             </div>
+
+            {schedule.subText && (
+              <p className="text-[9.5px] font-bold text-center text-[#2D5A38] pt-1">
+                {schedule.subText}
+              </p>
+            )}
 
             <button 
               onClick={onClose} 
@@ -733,7 +740,7 @@
               로 주세요. 
             </p>
             <p className="text-[8px] text-[#527D5C]/80 font-medium">
-              슬기 최고 ♡ <span className="text-[7.5px] text-[#88998C] ml-1">(최종 업데이트: 2026.10.15.)</span>
+              슬기 최고 ♡ <span className="text-[7.5px] text-[#88998C] ml-1">(최종 업데이트: 2026.10.23.)</span>
             </p>
           </footer>
         </div>
