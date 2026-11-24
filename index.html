@@ -266,7 +266,7 @@
       const redCasts = schedule.redBorderCasts || [];
 
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
           <div className="relative bg-[#FAFCFA] border-2 border-[#2D5A38] rounded-xl w-full max-w-[320px] p-4 shadow-lg space-y-3" onClick={(e) => e.stopPropagation()}>
             <button 
               onClick={onClose} 
@@ -335,9 +335,10 @@
     function DailyModal({ dateStr, schedules, specialAnniversaries, onClose, onSelectSchedule }) {
       if (!dateStr) return null;
 
-      const dateObj = new Date(dateStr);
+      const [yStr, mStr, dStr] = dateStr.split('-');
+      const dateObj = new Date(Number(yStr), Number(mStr) - 1, Number(dStr));
       const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-      const formattedDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 (${dayNames[dateObj.getDay()]})`;
+      const formattedDate = `${Number(yStr)}년 ${Number(mStr)}월 ${Number(dStr)}일 (${dayNames[dateObj.getDay()]})`;
 
       const getTitleBg = (title) => {
         if (title === '청새치') return 'bg-[#0284c7] text-white';
@@ -348,7 +349,7 @@
       const hasContent = schedules.length > 0 || specialAnniversaries.length > 0;
 
       return (
-        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs" onClick={onClose}>
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
           <div className="relative bg-white border-2 border-[#2D5A38] rounded-xl w-full max-w-[300px] p-4 shadow-xl space-y-3" onClick={(e) => e.stopPropagation()}>
             <button 
               onClick={onClose} 
@@ -363,7 +364,7 @@
 
             <div className="space-y-2 max-h-[220px] overflow-y-auto no-scrollbar">
               {specialAnniversaries.map((ann, idx) => (
-                <div key={`ann-${idx}`} className="p-2 rounded-lg border border-pink-300 bg-pink-50 text-center font-bold text-xs text-pink-600 shadow-xs">
+                <div key={`ann-${idx}`} className="p-2 rounded-lg border border-pink-300 bg-pink-50 text-center font-bold text-xs text-pink-600 shadow-sm">
                   {ann}
                 </div>
               ))}
@@ -375,7 +376,7 @@
                   <div 
                     key={item.id}
                     onClick={() => onSelectSchedule(item)}
-                    className="p-2.5 rounded-lg border border-[#D2E0D4] bg-[#F9FBF9] hover:bg-[#EBF1EC] cursor-pointer transition active:scale-98 flex items-center justify-between gap-1.5"
+                    className="p-2.5 rounded-lg border border-[#D2E0D4] bg-[#F9FBF9] hover:bg-[#EBF1EC] cursor-pointer transition active:scale-95 flex items-center justify-between gap-1.5"
                   >
                     <div className="shrink-0">
                       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded mr-1.5 ${getTitleBg(item.playTitle)}`}>
@@ -442,13 +443,13 @@
         return anns;
       };
 
-      const selectedDateObj = selectedDate ? new Date(selectedDate) : null;
-      const selectedDailySchedules = selectedDate 
-        ? schedules.filter((s) => s.date === selectedDate && !s.isSpecialRow && !s.isYearDivider)
-        : [];
-      const selectedDailyAnns = selectedDateObj 
-        ? getAnniversariesForDate(selectedDateObj.getMonth(), selectedDateObj.getDate(), selectedDateObj.getFullYear())
-        : [];
+      let selectedDailySchedules = [];
+      let selectedDailyAnns = [];
+      if (selectedDate) {
+        const [sy, sm, sd] = selectedDate.split('-').map(Number);
+        selectedDailySchedules = schedules.filter((s) => s.date === selectedDate && !s.isSpecialRow && !s.isYearDivider);
+        selectedDailyAnns = getAnniversariesForDate(sm - 1, sd, sy);
+      }
 
       return (
         <div className="p-2 space-y-2">
@@ -487,7 +488,7 @@
                     isToday 
                       ? 'today-cell font-bold shadow-sm' 
                       : hasSchedules 
-                        ? 'bg-white hover:bg-[#F4F8F5] border border-[#2D5A38]/40 shadow-xs' 
+                        ? 'bg-white hover:bg-[#F4F8F5] border border-[#2D5A38]/40 shadow-sm' 
                         : 'bg-white/50 border border-[#D2E0D4]'
                   }`}
                 >
@@ -506,7 +507,7 @@
                     {anniversaries.map((ann, aIdx) => (
                       <div
                         key={`ann-chip-${aIdx}`}
-                        className="w-full text-[6.5px] font-black px-0.5 py-0.2 rounded border border-pink-300 bg-pink-100 text-pink-700 truncate text-left leading-tight"
+                        className="w-full text-[6.5px] font-black px-0.5 py-[1px] rounded border border-pink-300 bg-pink-100 text-pink-700 truncate text-left leading-tight"
                       >
                         {ann}
                       </div>
@@ -514,7 +515,7 @@
                     {daySchedules.map((item) => (
                       <div
                         key={item.id}
-                        className={`w-full text-[7px] font-extrabold px-0.5 py-0.2 rounded border truncate text-left leading-tight ${getChipStyle(item.playTitle)}`}
+                        className={`w-full text-[7px] font-extrabold px-0.5 py-[1px] rounded border truncate text-left leading-tight ${getChipStyle(item.playTitle)}`}
                       >
                         {item.time} {item.playTitle.slice(0, 2)}
                       </div>
@@ -579,7 +580,7 @@
               
               <button
                 onClick={() => setViewMode(viewMode === 'list' ? 'calendar' : 'list')}
-                className="text-[10px] font-bold px-2 py-1 bg-white border border-[#2D5A38] text-[#2D5A38] rounded-md shadow-xs hover:bg-[#F4F8F5] transition active:scale-95 flex items-center space-x-1"
+                className="text-[10px] font-bold px-2 py-1 bg-white border border-[#2D5A38] text-[#2D5A38] rounded-md shadow-sm hover:bg-[#F4F8F5] transition active:scale-95 flex items-center space-x-1"
               >
                 <span>{viewMode === 'list' ? '월별 캘린더 보기' : '일정 보기'}</span>
                 <span className="text-[9px]">&gt;</span>
@@ -680,7 +681,7 @@
             </main>
 
             {/* 프로필 이미지 & 정산판 영역 */}
-            <section className="grid grid-cols-3 gap-2 p-2 bg-white/80 rounded-xl border border-[#D2E0D4] shadow-xs backdrop-blur-xs mb-2">
+            <section className="grid grid-cols-3 gap-2 p-2 bg-white/80 rounded-xl border border-[#D2E0D4] shadow-sm backdrop-blur-sm mb-2">
               {PROFILE_IMAGES.map((img) => (
                 <div key={img.id} className="flex flex-col space-y-1">
                   <div className="text-center">
@@ -723,10 +724,10 @@
                 href="https://www.youtube.com/@seulkimuto"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full p-2.5 bg-gradient-to-r from-[#2D5A38] to-[#1E3A24] text-white rounded-xl shadow-xs border border-[#2D5A38] transition active:scale-98 hover:brightness-110"
+                className="flex items-center justify-between w-full p-2.5 bg-gradient-to-r from-[#2D5A38] to-[#1E3A24] text-white rounded-xl shadow-sm border border-[#2D5A38] transition active:scale-95 hover:brightness-110"
               >
                 <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center shadow-xs">
+                  <div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center shadow-sm">
                     <svg className="w-3 h-3 fill-current text-white" viewBox="0 0 24 24">
                       <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
                     </svg>
